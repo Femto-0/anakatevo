@@ -1,31 +1,88 @@
-const { exiftool } = require("exiftool-vendored");
+document.addEventListener("DOMContentLoaded", () => {
 
-async function stripAndVerify(filePath) {
-  try {
-    // 1. Read metadata BEFORE
-    const before = await exiftool.read(filePath);
-    console.log("--- BEFORE STRIPPING ---");
-    console.log(`Camera: ${before.Model || "Unknown"}`);
-    console.log(
-      `GPS: ${before.GPSLatitude ? "YES (Found Location!)" : "None"}`,
-    );
-    console.log(`Creator: ${before.Artist || "None"}`);
+    const fileInput = document.getElementById("file-upload");
+    const button = document.getElementById("uploadfile");
+    const status = document.getElementById("status");
 
-    // 2. Wipe everything (-all=)
-    await exiftool.write(filePath, { all: "" }, ["-overwrite_original"]);
-    console.log("\n✅ Success! Scrubbing all metadata...");
+    button.addEventListener("click", () => {
 
-    // 3. Read metadata AFTER
-    const after = await exiftool.read(filePath);
-    console.log("\n--- AFTER STRIPPING ---");
-    console.log(`Camera: ${after.Model || "REMOVED"}`);
-    console.log(`GPS: ${after.GPSLatitude ? "STILL THERE ❌" : "REMOVED ✅"}`);
-    console.log(`Creator: ${after.Artist || "REMOVED ✅"}`);
-  } catch (err) {
-    console.error("❌ Error:", err.message);
-  } finally {
-    await exiftool.end();
-  }
-}
+        const file = fileInput.files[0];
 
-stripAndVerify("C:\\temp\\e631902b-97ab-4e63-945b-dfac448749ea.jpg");
+        if (!file) {
+            status.textContent = "Please select a JPEG image.";
+            return;
+        }
+
+        if (file.type !== "image/jpeg") {
+            status.textContent = "Only JPEG images are supported.";
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+
+            const imageDataURL = event.target.result;
+
+            try {
+                // Extract full EXIF data before removal
+                const exifBefore = piexif.load(imageDataURL);
+
+                // Remove ALL EXIF metadata
+                const cleanedImage = piexif.remove(imageDataURL);
+
+                // Convert cleaned image to Blob
+                const byteString = atob(cleanedImage.split(',')[1]);
+                const mimeString = cleanedImage.split(',')[0].split(':')[1].split(';')[0];
+
+                const arrayBuffer = new ArrayBuffer(byteString.length);
+                const intArray = new Uint8Array(arrayBuffer);
+                for (let i = 0; i < byteString.length; i++) {
+                    intArray[i] = byteString.charCodeAt(i);
+                }
+
+                const cleanBlob = new Blob([arrayBuffer], { type: mimeString });
+
+                // Auto-download cleaned image
+                const downloadUrl = URL.createObjectURL(cleanBlob);
+                const link = document.createElement("a");
+                link.href = downloadUrl;
+                link.download = "cleaned_" + file.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                //generate a full log of removed EXIF
+                const logContent = `
+=== EXIF Log for ${file.name} ===
+
+--- Original EXIF Data ---
+${JSON.stringify(exifBefore, null, 2)}
+
+--- All EXIF Removed ---
+EXIF has been completely stripped.
+`;
+
+                const logBlob = new Blob([logContent], { type: "text/plain" });
+                const logUrl = URL.createObjectURL(logBlob);
+
+                const logLink = document.createElement("a");
+                logLink.href = logUrl;
+                logLink.download = "exif_log_" + file.name + ".txt";
+                document.body.appendChild(logLink);
+                logLink.click();
+                document.body.removeChild(logLink);
+
+                status.textContent = "All EXIF metadata removed and log downloaded.";
+
+            } catch (error) {
+                console.error(error);
+                status.textContent = "Error processing file.";
+            }
+
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+});
