@@ -1,13 +1,16 @@
 {
     "manifest_version": 3, 
-    "name": "anakatevo",
+    "name": "Anakatevo",
     "version": "1.0",
     "description":"A simple extension to get rid of metadata",
-    "action":{
-        "default_popup": "anakatevo.html",
-        "default_icons": {
-          "48":"images/icon-48.png",
-          "128": "images/icon-128.png"
-        }
+
+    "action": {
+        "default_title": "A simple extension to get rid of metadata",
+        "default_icons": "images/icon-16.png",
+        "default_popup": "anakatevo.html"
+    },
+    "icons": {
+        "48": "images/icon-48.png",
+        "128": "images/icon-128.png"
     }
 }
