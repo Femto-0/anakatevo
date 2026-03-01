@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 ${JSON.stringify(exifBefore, null, 2)}
 
 --- All EXIF Removed ---
-EXIF has been completely stripped.
+EXIF has been completely stripped of important information.
 `;
 
                 const logBlob = new Blob([logContent], { type: "text/plain" });
@@ -85,4 +85,9 @@ EXIF has been completely stripped.
         reader.readAsDataURL(file);
     });
 
+});
+
+document.getElementById('gitHubLink').addEventListener('click', function(event){
+    event.preventDefault();
+    chrome.tabs.create({url:'https://github.com/Femto-0/anakatevo'});
 });
