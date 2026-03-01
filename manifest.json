@@ -6,11 +6,11 @@
 
     "action": {
         "default_title": "A simple extension to get rid of metadata",
-        "default_icons": "images/icon-16.png",
+        "default_icons": "icons/icon-16.png",
         "default_popup": "anakatevo.html"
     },
     "icons": {
-        "48": "images/icon-48.png",
-        "128": "images/icon-128.png"
+        "48": "icons/icon-48.png",
+        "128": "icons/icon-128.png"
     }
 }

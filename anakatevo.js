@@ -52,6 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 link.click();
                 document.body.removeChild(link);
 
+                //commented out since the users won't really need a log file
+ /*               
                 //generate a full log of removed EXIF
                 const logContent = `
 === EXIF Log for ${file.name} ===
@@ -62,7 +64,7 @@ ${JSON.stringify(exifBefore, null, 2)}
 --- All EXIF Removed ---
 EXIF has been completely stripped of important information.
 `;
-
+                //auto-download the log file
                 const logBlob = new Blob([logContent], { type: "text/plain" });
                 const logUrl = URL.createObjectURL(logBlob);
 
@@ -74,7 +76,7 @@ EXIF has been completely stripped of important information.
                 document.body.removeChild(logLink);
 
                 status.textContent = "All EXIF metadata removed and log downloaded.";
-
+*/
             } catch (error) {
                 console.error(error);
                 status.textContent = "Error processing file.";
